@@ -14,34 +14,44 @@
                    Placeholder="Busca de Produtos" 
                    TextChanged="txt_search_TextChanged"/>
 
-        <ListView x:Name="lst_produtos">
-            <ListView.Header>
-                <Grid ColumnDefinitions="*, *, *, *, *, *">
+        <CollectionView x:Name="lst_produtos"
+                        SelectionMode="Single"
+                        SelectionChanged="lst_produtos_SelectionChanged">
+
+            <CollectionView.Header>
+                <Grid ColumnDefinitions="*, *, *, *, *">
                     <Label Text="Id" Grid.Column="0" />
                     <Label Text="Descrição" Grid.Column="1" />
                     <Label Text="Preço" Grid.Column="2" />
                     <Label Text="Qnt" Grid.Column="3" />
                     <Label Text="Total" Grid.Column="4" />
                 </Grid>
-            </ListView.Header>
+            </CollectionView.Header>
 
-            <ListView.ItemTemplate>
+            <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <ViewCell>
-                        <ViewCell.ContextActions>
-                            <MenuItem Text="Remover" Clicked="MenuItem_Clicked"/>
-                        </ViewCell.ContextActions>
 
-                        <Grid ColumnDefinitions="*, *, *, *, *, *">
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems Mode="Execute">
+                                <SwipeItem Text="Remover"
+                                           BackgroundColor="Red"
+                                           Invoked="MenuItem_Clicked" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+
+                        <Grid ColumnDefinitions="*, *, *, *, *">
                             <Label Text="{Binding Id}" Grid.Column="0" />
                             <Label Text="{Binding Descricao}" Grid.Column="1" />
                             <Label Text="{Binding Preco}" Grid.Column="2" />
                             <Label Text="{Binding Quantidade}" Grid.Column="3" />
                             <Label Text="{Binding Total}" Grid.Column="4" />
                         </Grid>
-                    </ViewCell>
+
+                    </SwipeView>
+
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </VerticalStackLayout>
 </ContentPage>
