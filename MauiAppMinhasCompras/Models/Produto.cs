@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿
+using SQLite;
 
 namespace MauiAppMinhasCompras.Models
 {
@@ -11,6 +12,7 @@ namespace MauiAppMinhasCompras.Models
 
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
+
         public string Descricao
         {
             get => _descricao;
@@ -19,39 +21,41 @@ namespace MauiAppMinhasCompras.Models
                 if (value == null)
                 {
                     throw new Exception("Descrição não pode ser vazia");
-
                 }
 
                 _descricao = value;
             }
         }
-        public double Quantidade {
+
+        public double Quantidade
+        {
             get => _quantidade;
             set
             {
                 if (value == null)
                 {
                     throw new Exception("Quantidade não pode ser vazia");
-
                 }
 
                 _quantidade = value;
             }
         }
 
-        public double Preco {
+        public double Preco
+        {
             get => _valor;
             set
             {
                 if (value == null)
                 {
                     throw new Exception("Preço não pode ser vazia");
-
                 }
 
                 _valor = value;
             }
         }
+
+        public string Categoria { get; set; }
 
         public double Total { get => Quantidade * Preco; }
     }

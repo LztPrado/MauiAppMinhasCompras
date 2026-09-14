@@ -12,6 +12,7 @@ public partial class ListaProduto : ContentPage
         InitializeComponent();
 
         lst_produtos.ItemsSource = lista;
+        picker_categoria.SelectedIndex = 0;
     }
 
     protected async override void OnAppearing()
@@ -19,7 +20,9 @@ public partial class ListaProduto : ContentPage
         try
         {
             lista.Clear();
+
             List<Produto> tmp = await App.Db.GetAll();
+
             tmp.ForEach(i => lista.Add(i));
         }
         catch (Exception ex)
@@ -33,7 +36,6 @@ public partial class ListaProduto : ContentPage
         try
         {
             Navigation.PushAsync(new Views.NovoProduto());
-
         }
         catch (Exception ex)
         {
@@ -43,25 +45,49 @@ public partial class ListaProduto : ContentPage
 
     private async void txt_search_TextChanged(object sender, TextChangedEventArgs e)
     {
+        await FiltrarProdutos();
+    }
+
+    private async void picker_categoria_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        await FiltrarProdutos();
+    }
+
+    private async Task FiltrarProdutos()
+    {
         try
         {
-            string q = e.NewTextValue;
+            string busca = txt_search.Text ?? "";
+            string categoria = picker_categoria.SelectedItem?.ToString() ?? "Todas";
 
-            lst_produtos.IsRefreshing = true;
+            List<Produto> produtos = await App.Db.GetAll();
+
+            if (!string.IsNullOrWhiteSpace(busca))
+            {
+                produtos = produtos
+                    .Where(p => p.Descricao.Contains(
+                        busca,
+                        StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            if (categoria != "Todas")
+            {
+                produtos = produtos
+                    .Where(p => p.Categoria == categoria)
+                    .ToList();
+            }
 
             lista.Clear();
 
-            List<Produto> tmp = await App.Db.Search(q);
-
-            tmp.ForEach(i => lista.Add(i));
+            foreach (Produto produto in produtos)
+            {
+                lista.Add(produto);
+            }
         }
         catch (Exception ex)
         {
             await DisplayAlert("Ops", ex.Message, "OK");
-        }
-        finally
-        {
-            lst_produtos.IsRefreshing = false;
         }
     }
 
@@ -78,15 +104,20 @@ public partial class ListaProduto : ContentPage
     {
         try
         {
-            MenuItem selecinado = sender as MenuItem;
-            Produto p = selecinado.BindingContext as Produto;
+            MenuItem selecionado = sender as MenuItem;
+
+            Produto p = selecionado.BindingContext as Produto;
 
             bool confirm = await DisplayAlert(
-                "Tem Certeza?", $"Remover {p.Descricao}?", "Sim", "Não");
+                "Tem Certeza?",
+                $"Remover {p.Descricao}?",
+                "Sim",
+                "Não");
 
             if (confirm)
             {
                 await App.Db.Delete(p.Id);
+
                 lista.Remove(p);
             }
         }
@@ -96,7 +127,8 @@ public partial class ListaProduto : ContentPage
         }
     }
 
-    private void lst_produtos_ItemSelected(object sender,
+    private void lst_produtos_ItemSelected(
+        object sender,
         SelectedItemChangedEventArgs e)
     {
         try
@@ -127,11 +159,15 @@ public partial class ListaProduto : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Ops", ex.Message, "OK");
-
         }
         finally
         {
             lst_produtos.IsRefreshing = false;
         }
+    }
+
+    private async void ToolbarItem_Relatorio_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PushAsync(new Views.Relatorio());
     }
 }
